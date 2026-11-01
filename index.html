@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aamu's Closet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { color-scheme: light; --paper: #f8f7f4; --ink: #20201e; --muted: #77756f; --line: #deddd8; --serif: "Playfair Display", "Times New Roman", serif; --sans: "DM Sans", "Helvetica Neue", sans-serif; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+        button { font: inherit; }
+        .page { width: 100%; margin: 0 auto; padding: 27px clamp(24px, 4vw, 72px) 72px; }
+        .topline { display: flex; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; }
+        .header { display: flex; align-items: end; justify-content: space-between; gap: 32px; padding: 49px 0 36px; }
+        .header-copy { max-width: 690px; }
+        .small-title { margin-bottom: 12px; color: var(--muted); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        h1, h2, h3, p { margin-top: 0; }
+        h1 { margin-bottom: 13px; font-family: var(--serif); font-size: 58px; font-weight: 400; line-height: 1.05; }
+        .subtitle { margin-bottom: 0; color: #65635e; font-size: 13px; line-height: 1.7; }
+        .header-note { max-width: 190px; padding-bottom: 4px; color: var(--muted); font-family: var(--serif); font-size: 14px; font-style: italic; line-height: 1.6; text-align: right; }
+        .tabs { display: flex; gap: 32px; border-bottom: 1px solid var(--line); }
+        .tab { position: relative; display: flex; align-items: center; gap: 8px; min-height: 49px; padding: 0 1px; border: 0; background: transparent; color: #898781; cursor: pointer; font-size: 13px; }
+        .tab::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 1px; background: var(--ink); content: ""; transform: scaleX(0); transform-origin: left; transition: transform 180ms ease; }
+        .tab[aria-selected="true"] { color: var(--ink); }
+        .tab[aria-selected="true"]::after { transform: scaleX(1); }
+        .tab-count { color: #999791; font-size: 10px; }
+        .panel { padding-top: 30px; }
+        .panel[hidden] { display: none; }
+        .collection-index { display: flex; align-items: center; gap: 27px; margin-bottom: 25px; color: var(--muted); font-size: 10px; letter-spacing: 1.1px; text-transform: uppercase; }
+        .index-label { color: #a09e98; font-size: 9px; letter-spacing: 1.5px; }
+        .index-entry { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .index-number { color: #aaa8a1; font-size: 9px; letter-spacing: 1px; }
+        .panel-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+        .panel-heading h2 { margin: 0; font-family: var(--serif); font-size: 27px; font-weight: 400; }
+        .panel-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+        .wardrobe-tools { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+        .category-filters { display: flex; flex-wrap: wrap; gap: 7px; }
+        .category-filter { padding: 7px 10px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; transition: border-color 160ms ease, color 160ms ease; }
+        .category-filter:hover, .category-filter[aria-pressed="true"] { border-color: var(--line); color: var(--ink); }
+        .wardrobe-hint { margin: 0; color: var(--muted); font-size: 10px; }
+        .outfit-suggestions { margin: 24px 0 34px; }
+        .suggestion-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .suggestion-button { display: grid; gap: 8px; min-height: 82px; padding: 14px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-align: left; transition: background 160ms ease, border-color 160ms ease; }
+        .suggestion-button:hover, .suggestion-button[aria-pressed="true"] { border-color: #9c9991; background: rgba(255,255,255,.55); }
+        .suggestion-name { font-family: var(--serif); font-size: 16px; }
+        .suggestion-pieces { color: var(--muted); font-size: 10px; line-height: 1.5; }
+        .clothes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 18px; }
+        .clothing-item { min-width: 0; }
+        .clothing-item[hidden] { display: none; }
+        .item-image { position: relative; display: flex; aspect-ratio: .82; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(32,32,30,.035); background: #efeee9; transition: opacity 180ms ease, transform 180ms ease; }
+        .clothing-item:hover .item-image { opacity: .88; transform: translateY(-3px); }
+        .garment-image { display: block; width: 100%; height: 100%; padding: 8px; object-fit: contain; mix-blend-mode: multiply; }
+        .garment-image.photo-on-model { padding: 0; object-fit: cover; object-position: center 40%; transform: scale(1.35); }
+        .clothing-item:nth-child(5n + 2) .item-image { background: #e9e5df; }
+        .clothing-item:nth-child(5n + 3) .item-image { background: #eeece7; }
+        .clothing-item:nth-child(5n + 4) .item-image { background: #e8e9e5; }
+        .clothing-item:nth-child(5n) .item-image { background: #eeebe6; }
+        .wishlist-toggle, .outfit-toggle { position: absolute; display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid rgba(32,32,30,.12); border-radius: 50%; background: rgba(248,247,244,.9); color: var(--ink); cursor: pointer; font-size: 17px; line-height: 1; transition: background 160ms ease, color 160ms ease, transform 160ms ease; }
+        .wishlist-toggle { top: 10px; right: 10px; }
+        .outfit-toggle { bottom: 10px; left: 10px; }
+        .wishlist-toggle:hover, .outfit-toggle:hover { transform: scale(1.06); }
+        .wishlist-toggle[aria-pressed="true"], .outfit-toggle[aria-pressed="true"] { background: var(--ink); color: white; }
+        .clothing-name { overflow: hidden; margin-top: 11px; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+        .category { margin-top: 4px; color: #88867f; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; }
+        .empty-state { display: grid; min-height: 280px; place-content: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; }
+        .empty-state[hidden] { display: none; }
+        .empty-mark { margin-bottom: 13px; color: #8d8a82; font-family: var(--serif); font-size: 28px; }
+        .empty-state p { margin: 0; color: var(--muted); font-family: var(--serif); font-size: 17px; }
+        @media (min-width: 1700px) { .clothes { grid-template-columns: repeat(5, minmax(0, 1fr)); } .suggestion-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        @media (max-width: 1000px) { .page { padding-right: 36px; padding-left: 36px; } .clothes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        @media (max-width: 700px) { .page { padding: 20px 20px 48px; } .topline { padding-bottom: 14px; font-size: 9px; } .header { align-items: start; padding: 38px 0 27px; } h1 { font-size: 43px; } .header-note { display: none; } .tabs { gap: 24px; } .panel { padding-top: 23px; } .collection-index { flex-wrap: wrap; gap: 12px 17px; margin-bottom: 21px; } .index-label { flex-basis: 100%; } .clothes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; } .wishlist-toggle, .outfit-toggle { width: 29px; height: 29px; } .wardrobe-tools { align-items: start; flex-direction: column; gap: 8px; } }
+        @media (max-width: 420px) { .page { padding-right: 16px; padding-left: 16px; } h1 { font-size: 38px; } .subtitle { max-width: 310px; font-size: 12px; } .clothes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; } .collection-index { gap: 11px 14px; } .panel-heading h2 { font-size: 24px; } .suggestion-grid { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="topline"><span>Personal wardrobe archive</span><span>Private collection</span></div>
+        <header class="header">
+            <div class="header-copy">
+                <div class="small-title">A little something for you</div>
+                <h1>Aamu's Closet</h1>
+                <p class="subtitle">Everything you own, and a few outfits I think you'd look very good in.</p>
+            </div>
+            <div class="header-note">A considered collection<br>of everyday favourites.</div>
+        </header>
+        <div class="tabs" role="tablist" aria-label="Wardrobe sections">
+            <button class="tab" id="closet-tab" role="tab" aria-selected="true" aria-controls="closet-panel" tabindex="0">Closet <span class="tab-count" id="closet-count">14</span></button>
+            <button class="tab" id="wishlist-tab" role="tab" aria-selected="false" aria-controls="wishlist-panel" tabindex="-1">Wishlist <span class="tab-count" id="wishlist-count">0</span></button>
+        </div>
+        <section class="panel" id="closet-panel" role="tabpanel" aria-labelledby="closet-tab">
+            <div class="collection-index" aria-label="Closet categories"><span class="index-label">Collection index</span><span class="index-entry"><span class="index-number">01 / 04</span> Tops</span><span class="index-entry"><span class="index-number">02 / 04</span> Bottoms</span><span class="index-entry"><span class="index-number">03 / 04</span> Shoes</span></div>
+            <div class="panel-heading"><h2>The collection</h2><p id="collection-count">14 pieces</p></div>
+            <div class="wardrobe-tools">
+                <div class="category-filters" role="group" aria-label="Filter wardrobe by category">
+                    <button class="category-filter" type="button" data-filter="all" aria-pressed="true">All</button><button class="category-filter" type="button" data-filter="tops" aria-pressed="false">Tops</button><button class="category-filter" type="button" data-filter="bottoms" aria-pressed="false">Bottoms</button><button class="category-filter" type="button" data-filter="shoes" aria-pressed="false">Shoes</button><button class="category-filter" type="button" data-filter="outerwear" aria-pressed="false">Outerwear</button>
+                </div>
+                <p class="wardrobe-hint">Select pieces to build an outfit</p>
+            </div>
+            <section class="outfit-suggestions" aria-labelledby="suggestions-heading">
+                <div class="panel-heading"><h2 id="suggestions-heading">Outfit suggestions</h2><p>6 looks</p></div>
+                <div class="suggestion-grid">
+                    <button class="suggestion-button" type="button" data-items="navy-gap-tshirt,grey-sweatpants,sambas"><span class="suggestion-name">Casual</span><span class="suggestion-pieces">Navy GAP T-Shirt · Grey Sweatpants · Sambas</span></button>
+                    <button class="suggestion-button" type="button" data-items="baby-blue-shirt,grey-sweatpants,sambas"><span class="suggestion-name">Clean</span><span class="suggestion-pieces">Baby Blue Shirt · Grey Sweatpants · Sambas</span></button>
+                    <button class="suggestion-button" type="button" data-items="black-graphic-tshirt,grey-sweatpants,sambas"><span class="suggestion-name">Streetwear</span><span class="suggestion-pieces">Black Graphic T-Shirt · Grey Sweatpants · Sambas</span></button>
+                    <button class="suggestion-button" type="button" data-items="green-shirt,black-puffer-jacket,grey-sweatpants,sambas"><span class="suggestion-name">Layered</span><span class="suggestion-pieces">Green Shirt · Black Puffer · Grey Sweatpants · Sambas</span></button>
+                    <button class="suggestion-button" type="button" data-items="flannel-shirt,grey-sweatpants,sambas"><span class="suggestion-name">Weekend</span><span class="suggestion-pieces">Flannel Shirt · Grey Sweatpants · Sambas</span></button>
+                    <button class="suggestion-button" type="button" data-items="navy-polo,grey-sweatpants,sambas"><span class="suggestion-name">Smart Casual</span><span class="suggestion-pieces">Navy Polo · Grey Sweatpants · Sambas</span></button>
+                </div>
+            </section>
+            <div class="clothes" id="closet-grid">
+                <article class="clothing-item" data-id="flannel-shirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./Flannel-shirt.jpeg" alt="Black and white flannel shirt"><button class="wishlist-toggle" type="button" aria-label="Add Flannel Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Flannel Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Flannel Shirt</div><div class="category">Shirt</div></article>
+                <article class="clothing-item" data-id="baby-blue-shirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./baby-blue-shirt.jpeg" alt="Light blue button-down shirt"><button class="wishlist-toggle" type="button" aria-label="Add Baby Blue Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Baby Blue Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Baby Blue Shirt</div><div class="category">Shirt</div></article>
+                <article class="clothing-item" data-id="black-graphic-tshirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./black-graphic-tshirt.jpeg" alt="Black graphic T-shirt"><button class="wishlist-toggle" type="button" aria-label="Add Black Graphic T-Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Black Graphic T-Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Black Graphic T-Shirt</div><div class="category">T-Shirt</div></article>
+                <article class="clothing-item" data-id="black-puffer-jacket" data-group="outerwear"><div class="item-image"><img class="garment-image" src="./black-puffer-jacket.jpeg" alt="Black hooded puffer jacket"><button class="wishlist-toggle" type="button" aria-label="Add Black Puffer Jacket to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Black Puffer Jacket to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Black Puffer Jacket</div><div class="category">Outerwear</div></article>
+                <article class="clothing-item" data-id="black-tshirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./black-tshirt.jpeg" alt="Black T-shirt"><button class="wishlist-toggle" type="button" aria-label="Add Black T-Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Black T-Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Black T-Shirt</div><div class="category">T-Shirt</div></article>
+                <article class="clothing-item" data-id="green-puffer-jacket" data-group="outerwear"><div class="item-image"><img class="garment-image" src="./green-puffer-jacket.jpeg" alt="Sage green hooded puffer jacket"><button class="wishlist-toggle" type="button" aria-label="Add Green Puffer Jacket to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Green Puffer Jacket to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Green Puffer Jacket</div><div class="category">Outerwear</div></article>
+                <article class="clothing-item" data-id="green-shirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./green-shirt.jpeg" alt="Dark green button-down shirt"><button class="wishlist-toggle" type="button" aria-label="Add Green Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Green Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Green Shirt</div><div class="category">Shirt</div></article>
+                <article class="clothing-item" data-id="grey-sweatpants" data-group="bottoms"><div class="item-image"><img class="garment-image" src="./grey-sweatpants.jpeg" alt="Grey sweatpants"><button class="wishlist-toggle" type="button" aria-label="Add Grey Sweatpants to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Grey Sweatpants to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Grey Sweatpants</div><div class="category">Bottoms</div></article>
+                <article class="clothing-item" data-id="light-blue-hoodie" data-group="outerwear"><div class="item-image"><img class="garment-image" src="./light-blue-hoodie.jpeg" alt="Light blue hooded sweatshirt"><button class="wishlist-toggle" type="button" aria-label="Add Light Blue Hoodie to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Light Blue Hoodie to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Light Blue Hoodie</div><div class="category">Outerwear</div></article>
+                <article class="clothing-item" data-id="navy-benetton-tshirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./navy-benetton-tshirt.jpeg" alt="Navy Benetton graphic T-shirt"><button class="wishlist-toggle" type="button" aria-label="Add Navy Benetton T-Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Navy Benetton T-Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Navy Benetton T-Shirt</div><div class="category">T-Shirt</div></article>
+                <article class="clothing-item" data-id="navy-gap-tshirt" data-group="tops"><div class="item-image"><img class="garment-image" src="./navy-gap-tshirt.jpeg" alt="Navy GAP logo T-shirt"><button class="wishlist-toggle" type="button" aria-label="Add Navy GAP T-Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Navy GAP T-Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Navy GAP T-Shirt</div><div class="category">T-Shirt</div></article>
+                <article class="clothing-item" data-id="navy-polo" data-group="tops"><div class="item-image"><img class="garment-image" src="./navy-polo.jpeg" alt="Navy polo shirt with red logo"><button class="wishlist-toggle" type="button" aria-label="Add Navy Polo to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Navy Polo to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Navy Polo</div><div class="category">Polo</div></article>
+                <article class="clothing-item" data-id="red-plaid-shirt" data-group="tops"><div class="item-image"><img class="garment-image photo-on-model" src="./red-plaid-shirtjpeg.jpeg" alt="Red plaid button-down shirt"><button class="wishlist-toggle" type="button" aria-label="Add Red Plaid Shirt to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Red Plaid Shirt to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Red Plaid Shirt</div><div class="category">Shirt</div></article>
+                <article class="clothing-item" data-id="sambas" data-group="shoes"><div class="item-image"><img class="garment-image" src="./sambas.jpeg" alt="White and black Samba-style sneakers"><button class="wishlist-toggle" type="button" aria-label="Add Sambas to wishlist" aria-pressed="false">♡</button><button class="outfit-toggle" type="button" aria-label="Add Sambas to outfit" aria-pressed="false">+</button></div><div class="clothing-name">Sambas</div><div class="category">Shoes</div></article>
+            </div>
+        </section>
+        <section class="panel" id="wishlist-panel" role="tabpanel" aria-labelledby="wishlist-tab" hidden>
+            <div class="panel-heading"><h2>Your wishlist</h2><p id="wishlist-summary">0 pieces</p></div>
+            <div class="empty-state" id="wishlist-empty"><div class="empty-mark">♡</div><p>Your wishlist is waiting for its first piece.</p></div>
+            <div class="clothes" id="wishlist-grid"></div>
+        </section>
+    </main>
+    <script>
+        const closetTab = document.querySelector('#closet-tab');
+        const wishlistTab = document.querySelector('#wishlist-tab');
+        const closetPanel = document.querySelector('#closet-panel');
+        const wishlistPanel = document.querySelector('#wishlist-panel');
+        const closetGrid = document.querySelector('#closet-grid');
+        const wishlistGrid = document.querySelector('#wishlist-grid');
+        const wishlistEmpty = document.querySelector('#wishlist-empty');
+        const wishlistCount = document.querySelector('#wishlist-count');
+        const wishlistSummary = document.querySelector('#wishlist-summary');
+        const storageKey = 'aamu-closet-wishlist';
+        const activeOutfit = new Set();
+        let savedIds = new Set();
+
+        try {
+            const storedIds = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            if (Array.isArray(storedIds)) savedIds = new Set(storedIds);
+        } catch { savedIds = new Set(); }
+
+        function setTab(activeTab) {
+            const showCloset = activeTab === closetTab;
+            closetTab.setAttribute('aria-selected', String(showCloset));
+            wishlistTab.setAttribute('aria-selected', String(!showCloset));
+            closetTab.tabIndex = showCloset ? 0 : -1;
+            wishlistTab.tabIndex = showCloset ? -1 : 0;
+            closetPanel.hidden = !showCloset;
+            wishlistPanel.hidden = showCloset;
+        }
+
+        function updateOutfit() {
+            document.querySelectorAll('.outfit-toggle').forEach(button => {
+                const item = button.closest('.clothing-item');
+                const selected = activeOutfit.has(item.dataset.id);
+                const name = item.querySelector('.clothing-name').textContent;
+                button.setAttribute('aria-pressed', String(selected));
+                button.setAttribute('aria-label', `${selected ? 'Remove' : 'Add'} ${name} ${selected ? 'from' : 'to'} outfit`);
+                button.textContent = selected ? '−' : '+';
+            });
+            const selectedIds = [...activeOutfit].sort().join(',');
+            document.querySelectorAll('.suggestion-button').forEach(button => {
+                const suggestionIds = button.dataset.items.split(',').sort().join(',');
+                button.setAttribute('aria-pressed', String(suggestionIds === selectedIds));
+            });
+        }
+
+        function updateWishlist() {
+            const closetItems = [...closetGrid.querySelectorAll('.clothing-item')];
+            const selectedItems = closetItems.filter(item => savedIds.has(item.dataset.id));
+            wishlistGrid.replaceChildren(...selectedItems.map(item => {
+                const clone = item.cloneNode(true);
+                clone.hidden = false;
+                return clone;
+            }));
+            wishlistEmpty.hidden = selectedItems.length > 0;
+            wishlistGrid.hidden = selectedItems.length === 0;
+            wishlistCount.textContent = String(selectedItems.length);
+            wishlistSummary.textContent = `${selectedItems.length} ${selectedItems.length === 1 ? 'piece' : 'pieces'}`;
+            [...closetGrid.querySelectorAll('.clothing-item'), ...wishlistGrid.querySelectorAll('.clothing-item')].forEach(item => {
+                const toggle = item.querySelector('.wishlist-toggle');
+                const selected = savedIds.has(item.dataset.id);
+                const name = item.querySelector('.clothing-name').textContent;
+                toggle.setAttribute('aria-pressed', String(selected));
+                toggle.setAttribute('aria-label', `${selected ? 'Remove' : 'Add'} ${name} ${selected ? 'from' : 'to'} wishlist`);
+                toggle.textContent = selected ? '♥' : '♡';
+            });
+            updateOutfit();
+        }
+
+        [closetTab, wishlistTab].forEach(tab => {
+            tab.addEventListener('click', () => setTab(tab));
+            tab.addEventListener('keydown', event => {
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    const nextTab = tab === closetTab ? wishlistTab : closetTab;
+                    setTab(nextTab);
+                    nextTab.focus();
+                }
+            });
+        });
+
+        document.querySelectorAll('.category-filter').forEach(button => {
+            button.addEventListener('click', () => {
+                const filter = button.dataset.filter;
+                document.querySelectorAll('.category-filter').forEach(filterButton => filterButton.setAttribute('aria-pressed', String(filterButton === button)));
+                closetGrid.querySelectorAll('.clothing-item').forEach(item => { item.hidden = filter !== 'all' && item.dataset.group !== filter; });
+            });
+        });
+
+        document.querySelectorAll('.suggestion-button').forEach(button => {
+            button.addEventListener('click', () => {
+                activeOutfit.clear();
+                button.dataset.items.split(',').forEach(itemId => {
+                    if (closetGrid.querySelector(`[data-id="${itemId}"]`)) activeOutfit.add(itemId);
+                });
+                updateOutfit();
+            });
+        });
+
+        document.addEventListener('click', event => {
+            const favoriteButton = event.target.closest('.wishlist-toggle');
+            if (favoriteButton) {
+                const itemId = favoriteButton.closest('.clothing-item').dataset.id;
+                if (savedIds.has(itemId)) savedIds.delete(itemId);
+                else savedIds.add(itemId);
+                try { localStorage.setItem(storageKey, JSON.stringify([...savedIds])); } catch { /* Current-session favorites still work if storage is unavailable. */ }
+                updateWishlist();
+                return;
+            }
+            const outfitButton = event.target.closest('.outfit-toggle');
+            if (outfitButton) {
+                const selectedItem = outfitButton.closest('.clothing-item');
+                const itemId = selectedItem.dataset.id;
+                if (activeOutfit.has(itemId)) {
+                    activeOutfit.delete(itemId);
+                } else {
+                    [...activeOutfit].forEach(selectedId => {
+                        const selected = closetGrid.querySelector(`[data-id="${selectedId}"]`);
+                        if (selected.dataset.group === selectedItem.dataset.group) activeOutfit.delete(selectedId);
+                    });
+                    activeOutfit.add(itemId);
+                }
+                updateOutfit();
+                return;
+            }
+        });
+        updateWishlist();
+    </script>
+</body>
+</html>
